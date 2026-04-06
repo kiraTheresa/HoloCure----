@@ -12,8 +12,16 @@ def find_window(title):
     return hwnd
 
 
-def get_window_rect(hwnd):
-    return win32gui.GetWindowRect(hwnd)
+def get_client_rect(hwnd):
+    client_rect = win32gui.GetClientRect(hwnd)
+    client_width = client_rect[2]
+    client_height = client_rect[3]
+
+    client_left_top = win32gui.ClientToScreen(hwnd, (0, 0))
+    client_left = client_left_top[0]
+    client_top = client_left_top[1]
+
+    return client_left, client_top, client_width, client_height
 
 
 def main():
@@ -31,9 +39,7 @@ def main():
         fps = 0
 
         while True:
-            left, top, right, bottom = get_window_rect(hwnd)
-            width = right - left
-            height = bottom - top
+            left, top, width, height = get_client_rect(hwnd)
 
             monitor = {
                 "left": left,
@@ -42,7 +48,7 @@ def main():
                 "height": height
             }
 
-            print(f"窗口坐标: left={left}, top={top}, width={width}, height={height}")
+            print(f"客户区坐标: left={left}, top={top}, width={width}, height={height}")
 
             img = np.array(sct.grab(monitor))
             frame = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
