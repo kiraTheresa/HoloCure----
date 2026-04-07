@@ -7,7 +7,9 @@ import os
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "project", "templates", "1920_1080", "opaque")
 TEMPLATE_NAMES = ["up_54_63", "down_54_63", "left_60_57", "right_60_57", "circle_48_51"]
+MATCH_THRESHOLD = 0.6
 K = 5
+SEARCH_MARGIN = 80
 
 ROI = {
     "x1": 640,
@@ -15,6 +17,8 @@ ROI = {
     "x2": 1220,
     "y2": 800
 }
+
+last_x = None
 
 
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
@@ -79,12 +83,18 @@ def get_top_k_candidates(result, template_name, k=K):
     return candidates
 
 
-def match_templates(roi_gray, templates):
+def match_templates(roi_gray, templates, x_offset=0):
+    global last_x
     all_candidates = []
 
     for name, tpl in templates.items():
         result = cv2.matchTemplate(roi_gray, tpl, cv2.TM_CCOEFF_NORMED)
         candidates = get_top_k_candidates(result, name, K)
+
+        for c in candidates:
+            real_x = c["loc"][0] + x_offset
+            c["loc"] = (real_x, c["loc"][1])
+
         all_candidates.extend(candidates)
 
     all_candidates.sort(key=lambda x: x["score"], reverse=True)
