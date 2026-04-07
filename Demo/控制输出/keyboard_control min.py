@@ -153,6 +153,8 @@ def main():
 
     last_press_time = 0
     press_cooldown = 0.15
+    last_detect_time = time.time()
+    no_detect_timeout = 10.0
 
     with mss.mss() as sct:
         prev_time = time.time()
@@ -181,9 +183,11 @@ def main():
 
             curr_time = time.time()
             triggered = False
+            any_detected = False
 
             for i, cand in enumerate(top_candidates, 1):
                 if cand["score"] >= MATCH_THRESHOLD:
+                    any_detected = True
                     name = cand["name"]
                     score = cand["score"]
                     loc = cand["loc"]
@@ -208,6 +212,16 @@ def main():
                     cv2.putText(roi_frame, f"{name.split('_')[0]} ({score:.2f})",
                                 (top_left[0], top_left[1] - 5),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+
+            if any_detected:
+                last_detect_time = curr_time
+
+            if curr_time - last_detect_time > no_detect_timeout:
+                print(f"[超时] {no_detect_timeout}秒未检测到符号，执行两次空格")
+                press_key("SPACE")
+                time.sleep(0.2)
+                press_key("SPACE")
+                last_detect_time = curr_time
 
             fps = 1 / (curr_time - prev_time)
             prev_time = curr_time
