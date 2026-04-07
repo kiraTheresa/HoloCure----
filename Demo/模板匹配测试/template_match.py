@@ -17,12 +17,18 @@ ROI = {
 }
 
 
+def imread_unicode(path, flags=cv2.IMREAD_COLOR):
+    data = np.fromfile(path, dtype=np.uint8)
+    img = cv2.imdecode(data, flags)
+    return img
+
+
 def load_templates():
     templates = {}
     for name in TEMPLATE_NAMES:
         path = os.path.join(TEMPLATE_DIR, f"{name}.png")
         if os.path.exists(path):
-            tpl = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            tpl = imread_unicode(path, cv2.IMREAD_GRAYSCALE)
             if tpl is not None:
                 templates[name] = tpl
                 print(f"已加载模板: {name} -> {tpl.shape[1]}x{tpl.shape[0]}")
