@@ -10,7 +10,7 @@ import os
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "project", "templates", "1920_1080", "opaque")
 TEMPLATE_NAMES = ["up_54_63", "down_54_63", "left_60_57", "right_60_57", "circle_48_51"]
 MATCH_THRESHOLD = 0.7
-TOP_K = 5
+TOP_K = 3
 TRIGGER_ZONE_WIDTH = 110
 
 ROI = {
@@ -154,7 +154,7 @@ def main():
     last_press_time = 0
     press_cooldown = 0.15
     last_detect_time = time.time()
-    no_detect_timeout = 10.0
+    no_detect_timeout = 5.0
 
     with mss.mss() as sct:
         prev_time = time.time()
